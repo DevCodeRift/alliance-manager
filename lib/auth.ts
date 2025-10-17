@@ -1,16 +1,13 @@
-import { NextAuthOptions } from "next-auth"
+import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { Adapter } from "next-auth/adapters"
-import DiscordProvider from "next-auth/providers/discord"
-import { getServerSession } from "next-auth/next"
+import Discord from "next-auth/providers/discord"
 import { prisma } from "./prisma"
 import { redis } from "./redis"
 
-export const authOptions: NextAuthOptions = {
-  // Use hybrid approach: Prisma for user data, Redis for sessions
-  adapter: PrismaAdapter(prisma) as Adapter,
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
-    DiscordProvider({
+    Discord({
       clientId: process.env.DISCORD_CLIENT_ID!,
       clientSecret: process.env.DISCORD_CLIENT_SECRET!,
     }),
@@ -62,6 +59,4 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
-}
-
-export const auth = () => getServerSession(authOptions)
+})
