@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 export default function LinkAccount() {
-  const { data: session } = useSession()
   const router = useRouter()
   const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,8 +32,8 @@ export default function LinkAccount() {
       // Redirect to dashboard after successful linking
       router.push('/dashboard')
       router.refresh()
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -57,7 +55,7 @@ export default function LinkAccount() {
           <h3 className="font-semibold text-blue-900 mb-2">How to get your API key:</h3>
           <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
             <li>Go to <a href="https://politicsandwar.com/account/" target="_blank" rel="noopener noreferrer" className="underline">politicsandwar.com/account/</a></li>
-            <li>Scroll down to "API Key" section</li>
+            <li>Scroll down to &quot;API Key&quot; section</li>
             <li>Copy your API key</li>
             <li>Paste it below</li>
           </ol>
