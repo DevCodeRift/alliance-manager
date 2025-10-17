@@ -1,4 +1,4 @@
-import { PnwKit } from 'pnwkit'
+import PnwKit from 'pnwkit'
 import { getCachedData, CACHE_TTL } from './redis'
 
 export function createPnwClient(apiKey: string) {
