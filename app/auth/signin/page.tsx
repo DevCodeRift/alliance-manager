@@ -8,6 +8,14 @@ function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
 
+  const handleSignIn = () => {
+    // Use the current origin to ensure redirect URI matches
+    const redirectUrl = `${window.location.origin}/api/auth/callback/discord`
+
+    // Redirect to NextAuth signin endpoint which will handle the OAuth flow
+    window.location.href = `/api/auth/signin/discord?callbackUrl=${encodeURIComponent(callbackUrl)}`
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
       <div className="max-w-md w-full bg-white rounded-lg shadow-2xl p-8">
@@ -21,7 +29,7 @@ function SignInContent() {
         </div>
 
         <button
-          onClick={() => signIn('discord', { callbackUrl })}
+          onClick={handleSignIn}
           className="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center gap-3 transition-colors"
         >
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
