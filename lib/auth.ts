@@ -19,11 +19,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         // Try to get user data from Redis cache first
         const cacheKey = `user:${user.id}`
-        let userData = await redis.get(cacheKey)
+        const cachedData = await redis.get(cacheKey)
 
-        if (!userData) {
+        let userData
+
+        if (!cachedData) {
           // If not in cache, fetch from database
-          const dbUser = await prisma.user.findUnique({
+          userData = await prisma.user.findUnique({
             where: { id: user.id },
             include: {
               nation: {
@@ -34,13 +36,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
           })
 
-          if (dbUser) {
+          if (userData) {
             // Cache for 5 minutes
-            await redis.setex(cacheKey, 300, JSON.stringify(dbUser))
-            userData = dbUser
+            await redis.setex(cacheKey, 300, JSON.stringify(userData))
           }
-        } else if (typeof userData === 'string') {
-          userData = JSON.parse(userData)
+        } else {
+          userData = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData
         }
 
         if (userData) {
