@@ -4,6 +4,7 @@ import { Adapter } from "next-auth/adapters"
 import DiscordProvider from "next-auth/providers/discord"
 import { prisma } from "./prisma"
 import { redis } from "./redis"
+import { getServerSession } from "next-auth"
 
 export const authOptions: NextAuthOptions = {
   // Use hybrid approach: Prisma for user data, Redis for sessions
@@ -62,4 +63,5 @@ export const authOptions: NextAuthOptions = {
     strategy: "database",
   },
 }
-export const auth = () => NextAuth(authOptions);
+
+export const auth = () => getServerSession(authOptions)
