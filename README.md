@@ -15,7 +15,8 @@ A comprehensive web application for managing Politics and War alliances. Built w
 
 - **Framework:** Next.js 15 (App Router)
 - **Authentication:** NextAuth.js with Discord OAuth
-- **Database:** PostgreSQL with Prisma ORM
+- **Database:** Supabase PostgreSQL with Prisma ORM
+- **Cache:** Upstash Redis for session storage and API caching
 - **API Integration:** PnwKit for Politics and War API
 - **Styling:** Tailwind CSS
 - **Deployment:** Vercel
@@ -23,7 +24,8 @@ A comprehensive web application for managing Politics and War alliances. Built w
 ## Prerequisites
 
 - Node.js 18+ and npm
-- PostgreSQL database
+- Supabase account (PostgreSQL database)
+- Upstash account (Redis cache)
 - Discord OAuth application
 - Politics and War API key
 
@@ -61,8 +63,12 @@ cp .env.example .env
 Edit `.env`:
 
 ```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/alliance_manager"
+# Database - Supabase PostgreSQL
+DATABASE_URL="postgresql://user:password@db.xxxxx.supabase.co:5432/postgres?schema=public"
+
+# Redis - Upstash Redis
+UPSTASH_REDIS_REST_URL="https://xxxxx.upstash.io"
+UPSTASH_REDIS_REST_TOKEN="your-upstash-token"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
@@ -103,21 +109,27 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Deployment to Vercel
 
-### 1. Set up a PostgreSQL database
+### 1. Set up Supabase (PostgreSQL)
 
-You'll need a production PostgreSQL database. Options include:
+1. Go to [Supabase](https://supabase.com/) and create a new project
+2. Wait for the database to be provisioned
+3. Go to **Settings** → **Database**
+4. Copy the connection string (URI format)
+5. Use this as your `DATABASE_URL`
 
-- [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres)
-- [Supabase](https://supabase.com/)
-- [Railway](https://railway.app/)
-- [Neon](https://neon.tech/)
+### 2. Set up Upstash (Redis)
 
-### 2. Configure Discord OAuth for Production
+1. Go to [Upstash](https://upstash.com/) and create an account
+2. Create a new Redis database
+3. Select a region close to your Vercel deployment
+4. Copy the `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+
+### 3. Configure Discord OAuth for Production
 
 1. Go to your Discord application in the Developer Portal
 2. Add redirect URL: `https://orbistech.dev/api/auth/callback/discord`
 
-### 3. Deploy to Vercel
+### 4. Deploy to Vercel
 
 #### Option A: Deploy via Vercel Dashboard
 
@@ -126,7 +138,9 @@ You'll need a production PostgreSQL database. Options include:
 3. Click "New Project"
 4. Import your GitHub repository
 5. Configure environment variables:
-   - `DATABASE_URL`: Your production PostgreSQL connection string
+   - `DATABASE_URL`: Your Supabase PostgreSQL connection string
+   - `UPSTASH_REDIS_REST_URL`: Your Upstash Redis REST URL
+   - `UPSTASH_REDIS_REST_TOKEN`: Your Upstash Redis REST token
    - `NEXTAUTH_URL`: `https://orbistech.dev`
    - `NEXTAUTH_SECRET`: Generate a new secret (use `openssl rand -base64 32`)
    - `DISCORD_CLIENT_ID`: Your Discord client ID
@@ -146,14 +160,14 @@ vercel login
 vercel
 ```
 
-### 4. Set up custom domain
+### 5. Set up custom domain
 
 1. In your Vercel project settings, go to "Domains"
 2. Add `orbistech.dev`
 3. Follow the DNS configuration instructions
 4. Update your Discord OAuth redirect URL to use the custom domain
 
-### 5. Initialize database schema
+### 6. Initialize database schema
 
 After deployment, run the Prisma migration:
 
@@ -167,7 +181,9 @@ npx prisma db push
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `DATABASE_URL` | Supabase PostgreSQL connection string | Yes |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL | Yes |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | Yes |
 | `NEXTAUTH_URL` | Full URL of your application | Yes |
 | `NEXTAUTH_SECRET` | Random secret for session encryption | Yes |
 | `DISCORD_CLIENT_ID` | Discord OAuth application client ID | Yes |
@@ -213,7 +229,8 @@ alliance-manager/
 ├── lib/
 │   ├── auth.ts                  # NextAuth configuration
 │   ├── prisma.ts                # Prisma client
-│   └── pnwkit.ts                # PnwKit utilities
+│   ├── redis.ts                 # Redis client and caching utilities
+│   └── pnwkit.ts                # PnwKit utilities with Redis caching
 ├── prisma/
 │   └── schema.prisma            # Database schema
 ├── types/
