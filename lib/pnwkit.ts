@@ -1,8 +1,10 @@
-import PnwKit from 'pnwkit'
+import { Kit } from 'pnwkit'
 import { getCachedData, CACHE_TTL } from './redis'
 
 export function createPnwClient(apiKey: string) {
-  return PnwKit({ apiKey })
+  const kit = new Kit()
+  kit.setKey(apiKey)
+  return kit
 }
 
 export async function fetchNationData(apiKey: string, nationId?: number) {
