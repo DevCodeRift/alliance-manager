@@ -2,7 +2,7 @@ import PnwKit from 'pnwkit'
 import { getCachedData, CACHE_TTL } from './redis'
 
 export function createPnwClient(apiKey: string) {
-  return new PnwKit({ apiKey })
+  return PnwKit({ apiKey })
 }
 
 export async function fetchNationData(apiKey: string, nationId?: number) {
